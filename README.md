@@ -8,6 +8,15 @@ A simple RESTful API built with Node.js, Express, and PostgreSQL.
 - PostgreSQL database integration
 - CORS enabled for frontend integration
 - Environment variable configuration
+- Input validation for API endpoints
+
+## Security Considerations
+
+For production deployments, consider implementing:
+- **Rate limiting**: Use packages like `express-rate-limit` to prevent abuse
+- **Helmet.js**: Add security headers with the `helmet` package
+- **HTTPS**: Always use SSL/TLS in production
+- **Input sanitization**: Consider using `express-validator` for more robust validation
 
 ## Prerequisites
 
