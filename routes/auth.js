@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
+// Simple email validation regex
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 // Register new user
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -12,11 +15,19 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Name, email, and password are required.' });
   }
 
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format.' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+  }
+
   try {
     const pool = req.app.get('pool');
 
     // Check if user already exists
-    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: 'User with this email already exists.' });
     }
@@ -45,11 +56,15 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
 
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format.' });
+  }
+
   try {
     const pool = req.app.get('pool');
 
     // Find user
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT id, name, email, password FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
